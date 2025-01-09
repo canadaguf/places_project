@@ -1,0 +1,155 @@
+.ctn {
+  border: 1px solid #333;
+  margin: 50px auto;
+  width: 317PX;
+  border-radius: 15px;
+  box-shadow: 4px 4px 4px rgba(0,0,0,0.25);
+  font-family: Inter, sans-serif;
+}
+
+/* Image */
+img {
+  width: 317PX;
+  border-top-left-radius: 15px;
+  border-top-right-radius: 15px;
+}
+
+#ctn-image p {
+  background-color:rgba(0,0,0,0.9);
+  margin-bottom: -25px;
+  font-size: 9px;
+}
+
+#attribution {
+  position: relative;
+  bottom: 23px;
+  text-align: center;
+  text-shadow: 1px 1px 1px rgba(0,0,0,0.5);
+}
+
+/* Container for mid secion */
+.ctn-mid-section {
+  min-height: 399px;
+  padding: 0 25px;
+}
+
+/* Info section */
+.info {
+  text-align: center;
+}
+
+.info h1 {
+  margin-bottom: 0;
+  padding-top: 0;
+}
+
+.info h3 {
+  color: #F3BF99;
+  margin-top: 0;
+  font-weight: 400;
+}
+
+.info a {
+  color: white;
+  text-decoration: none;
+  font-weight: 300;
+}
+.info a:hover,
+.info a:focus {
+  color: gray;
+}
+
+/* Buttons */
+button {
+  border: none;
+  min-width: 115px;
+  height: 34px;
+  border-radius: 6px;
+  padding: 9px, 13px, 9px, 11px;
+  cursor: pointer;
+}
+
+.buttons {
+  margin: 15px 0px;
+  display: flex;
+  justify-content: space-around;
+}
+
+i {
+  margin: 0 5px;
+}
+
+#btn-email {
+  color: #374151;
+}
+
+#btn-email:hover,
+#btn-email:focus {
+  color: white;
+  background-color: #374151;
+}
+
+#btn-phone {
+  color: white;
+  background-color: #5093E2;
+}
+
+#btn-phone:hover,
+#btn-phone:focus {
+  color: #5093E2;
+  background-color: white;
+}
+
+/* About & Interests section */
+#about,
+#interests {
+  font-weight: 200;
+  letter-spacing: 1px;
+  margin-top: 40px;
+}
+
+#about h4,
+#interests h4 {
+  margin-bottom: 0;
+}
+
+#interests {
+  margin-bottom: 50px;
+}
+
+/* Footer */
+footer {
+  width: 317PX;
+  height: 64px;
+  margin-left: -25px;
+  background-color: #161619;
+  border-bottom-left-radius: 15px;
+  border-bottom-right-radius: 15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+footer i {
+  margin: 0 15px;
+}
+
+footer i:hover,
+footer i:focus {
+  color: gray;
+  cursor: pointer;
+}
+
+/* SideMenu */
+h1 {
+  color: #165a72;
+  margin: 50px auto;
+  font-size: 40px;
+}
+.menu1 {
+  margin-bottom: 40px;
+  margin-top: 20px;
+}
+h2 {
+  color: #165a72;
+}
