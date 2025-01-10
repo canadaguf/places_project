@@ -4,17 +4,17 @@ from flask_bcrypt import Bcrypt
 from flask_cors import CORS
 import jwt
 import datetime
+import os
 
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "https://polite-lebkuchen-acb700.netlify.app/"}})
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:w8mj10CPxSQDW8if@abysmally-empowered-sunbeam.data-1.use1.tembo.io:5432/postgres'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'postgresql://postgres:w8mj10CPxSQDW8if@abysmally-empowered-sunbeam.data-1.use1.tembo.io:5432/postgres')
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 
 # Secret key for JWT
-app.config['SECRET_KEY'] = 'A1b2C3d4E5f6G7h8I9j0K!l@M#n$O%p^Q&r*S(t)U_V+W-X=Y'
-
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'A1b2C3d4E5f6G7h8I9j0K!l@M#n$O%p^Q&r*S(t)U_V+W-X=Y')
 
 class User(db.Model):
     __tablename__ = 'users'
@@ -29,7 +29,6 @@ class User(db.Model):
 
     def check_password(self, password):
         return bcrypt.check_password_hash(self.password_hash, password)
-
 
 @app.route('/api/login', methods=['POST'])
 def login():
@@ -52,7 +51,6 @@ def login():
 
     return jsonify({'message': 'Login successful', 'token': token, 'status': 'success'}), 200
 
-
 @app.route('/api/register', methods=['POST'])
 def register():
     data = request.json
@@ -72,7 +70,6 @@ def register():
 
     return jsonify({'message': 'User registered successfully', 'status': 'success'}), 201
 
-
 class PlaceData(db.Model):
     __tablename__ = 'place'
 
@@ -89,7 +86,6 @@ class PlaceData(db.Model):
     website = db.Column(db.String, nullable=False)
     phone = db.Column(db.String, nullable=False)
 
-
 class Review(db.Model):
     __tablename__ = 'review'
 
@@ -104,18 +100,13 @@ class Review(db.Model):
     place = db.relationship('PlaceData', backref='reviews', lazy=True)
     user = db.relationship('User', backref='reviews', lazy=True)
 
-
 @app.route('/api/place-data', methods=['POST'])
 def save_place():
     data = request.json
     place_id = data.get('place_id')
-    # Debugging: Log the place_id to check if it's correctly received
     print(f"Received place_id: {place_id}")
 
-    # Check if place with the same place_id already exists
     existing_place = PlaceData.query.filter_by(place_id=place_id).first()
-
-    # Debugging: Log the result of the query
     print(f"Existing place: {existing_place}")
     if existing_place is not None:
         return jsonify({'message': 'Данное заведение уже записано в базе', 'status': 'place_id exists'}), 409
@@ -136,13 +127,9 @@ def save_place():
     db.session.commit()
     return jsonify({'message': 'Успешная запись ;)', 'status': 'success'}), 201
 
-
 @app.route('/api/places', methods=['GET'])
 def get_places():
-    # Fetch all places from the database
     places = PlaceData.query.all()
-
-    # Convert the places to a list of dictionaries
     places_list = []
     for place in places:
         places_list.append({
@@ -161,17 +148,13 @@ def get_places():
 
     return jsonify({'places': places_list}), 200
 
-
 @app.route('/api/place/<int:place_id>', methods=['GET'])
 def get_place(place_id):
     place = PlaceData.query.filter_by(id=place_id).first()
     if not place:
         return jsonify({'message': 'Place not found', 'status': 'error'}), 404
 
-    # Fetch reviews for the place
     reviews = Review.query.filter_by(id_place=place_id).all()
-
-    # Calculate average rating and number of reviews
     total_reviews = len(reviews)
     if total_reviews > 0:
         total_score = sum(review.review_score for review in reviews)
@@ -196,7 +179,6 @@ def get_place(place_id):
             'total_reviews': total_reviews,
         }
     }), 200
-
 
 @app.route('/api/place/<int:place_id>', methods=['PUT'])
 def update_place(place_id):
@@ -230,7 +212,6 @@ def update_place(place_id):
         }
     }), 200
 
-
 @app.route('/api/review', methods=['POST'])
 def add_review():
     data = request.json
@@ -253,13 +234,9 @@ def add_review():
 
     return jsonify({'message': 'Review added successfully', 'status': 'success'}), 201
 
-
 @app.route('/api/reviews/<int:place_id>', methods=['GET'])
 def get_reviews(place_id):
-    # Fetch all reviews for the given place_id
     reviews = Review.query.filter_by(id_place=place_id).all()
-
-    # Convert reviews to a list of dictionaries
     reviews_list = []
     for review in reviews:
         reviews_list.append({
@@ -268,12 +245,13 @@ def get_reviews(place_id):
             'id_user': review.id_user,
             'review_text': review.review_text,
             'review_score': review.review_score,
-            'created_at': review.created_at.strftime('%d/%m/%Y'),  # Format date as DD/MM/YYYY
-            'username': review.user.username  # Access username from the related User model
+            'created_at': review.created_at.strftime('%d/%m/%Y'),
+            'username': review.user.username
         })
 
     return jsonify({'reviews': reviews_list}), 200
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.getenv('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
