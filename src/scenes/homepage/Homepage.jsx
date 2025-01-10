@@ -14,7 +14,7 @@ const Homepage = () => {
   useEffect(() => {
     const fetchPlaces = async () => {
       try {
-        const response = await axios.get('${backendUrl}/api/places');
+        const response = await axios.get(`${backendUrl}/api/places`);
         setPlaces(response.data.places);
         setLoading(false);
       } catch (error) {

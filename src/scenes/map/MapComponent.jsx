@@ -65,7 +65,7 @@ function MapComponent() {
   }, []);
 
   const handleSavePlace = (place) => {
-    axios.post('${backendUrl}/api/place-data', place)
+    axios.post(`${backendUrl}/api/place-data`, place)
       .then(response => {
         console.log('Response from backend:', response.data);
         if (response.data.status === 'success') {

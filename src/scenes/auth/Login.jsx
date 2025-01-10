@@ -14,7 +14,7 @@ const backendUrl = "https://places-project-6i0r.onrender.com";
   const handleLogin = async () => {
     setLoading(true); // Start loading
     try {
-      const response = await axios.post('${backendUrl}/api/login', {
+      const response = await axios.post(`${backendUrl}/api/login`, {
         username,
         password,
       });

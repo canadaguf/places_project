@@ -10,7 +10,7 @@ const backendUrl = "https://places-project-6i0r.onrender.com";
 
   const handleRegister = async () => {
     try {
-      const response = await axios.post('${backendUrl}/api/register', {
+      const response = await axios.post(`${backendUrl}/api/register`, {
         username,
         password,
       });
