@@ -3,6 +3,7 @@ import { Typography, Container, Grid, Paper, List, ListItem, ListItemText, Divid
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 
+const backendUrl = "https://places-project-6i0r.onrender.com";
 const Homepage = () => {
   const [places, setPlaces] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -13,7 +14,7 @@ const Homepage = () => {
   useEffect(() => {
     const fetchPlaces = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/places');
+        const response = await axios.get('${backendUrl}/api/places');
         setPlaces(response.data.places);
         setLoading(false);
       } catch (error) {

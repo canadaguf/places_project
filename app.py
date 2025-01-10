@@ -7,7 +7,12 @@ import datetime
 import os
 
 app = Flask(__name__)
-CORS(app, resources={r"/api/*": {"origins": "https://polite-lebkuchen-acb700.netlify.app/"}})
+# Allow requests from both Netlify and Render (if needed)
+allowed_origins = [
+    "https://polite-lebkuchen-acb700.netlify.app",
+    "https://places-project-6i0r.onrender.com",  # Add your Render backend URL if needed
+]
+CORS(app, resources={r"/api/*": {"origins": allowed_origins}})
 
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'postgresql://postgres:w8mj10CPxSQDW8if@abysmally-empowered-sunbeam.data-1.use1.tembo.io:5432/postgres')
 db = SQLAlchemy(app)

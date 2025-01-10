@@ -6,10 +6,11 @@ function Register() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
+const backendUrl = "https://places-project-6i0r.onrender.com";
 
   const handleRegister = async () => {
     try {
-      const response = await axios.post('http://localhost:5000/api/register', {
+      const response = await axios.post('${backendUrl}/api/register', {
         username,
         password,
       });

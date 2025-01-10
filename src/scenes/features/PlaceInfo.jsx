@@ -18,6 +18,7 @@ import {
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
 
+const backendUrl = "https://places-project-6i0r.onrender.com";
 const PlaceInfo = () => {
   const { id } = useParams(); // Get the place ID from the URL
   const [place, setPlace] = useState(null);
@@ -47,7 +48,7 @@ const PlaceInfo = () => {
     const fetchPlaceAndReviews = async () => {
       try {
         // Fetch place details
-        const placeResponse = await axios.get(`http://localhost:5000/api/place/${id}`);
+        const placeResponse = await axios.get(`${backendUrl}/api/place/${id}`);
         setPlace(placeResponse.data.place);
         setFormData({
           name: placeResponse.data.place.name,
@@ -60,7 +61,7 @@ const PlaceInfo = () => {
         });
 
         // Fetch reviews for the place
-        const reviewsResponse = await axios.get(`http://localhost:5000/api/reviews/${id}`);
+        const reviewsResponse = await axios.get(`${backendUrl}/api/reviews/${id}`);
         setReviews(reviewsResponse.data.reviews);
 
         setLoading(false);
@@ -86,7 +87,7 @@ const PlaceInfo = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.put(`http://localhost:5000/api/place/${id}`, {
+      const response = await axios.put(`${backendUrl}/api/place/${id}`, {
         name: formData.name,
         address: formData.address,
         category: formData.category.split(',').map((item) => item.trim()), // Convert string back to array
@@ -120,7 +121,7 @@ const PlaceInfo = () => {
     const userId = decodedToken.user_id; // Get user ID from JWT token
 
     // Submit the new review
-    await axios.post(`http://localhost:5000/api/review`, {
+    await axios.post(`${backendUrl}/api/review`, {
       id_place: id, // Automatically set place ID
       id_user: userId, // Automatically set user ID
       review_text: reviewData.review_text,
@@ -132,11 +133,11 @@ const PlaceInfo = () => {
     setReviewData({ review_text: '', review_score: 5 }); // Reset review form
 
     // Refetch place details to update the rating and reviews
-    const placeResponse = await axios.get(`http://localhost:5000/api/place/${id}`);
+    const placeResponse = await axios.get(`${backendUrl}/api/place/${id}`);
     setPlace(placeResponse.data.place); // Update place details
 
     // Refetch reviews to update the reviews list
-    const reviewsResponse = await axios.get(`http://localhost:5000/api/reviews/${id}`);
+    const reviewsResponse = await axios.get(`${backendUrl}/api/reviews/${id}`);
     setReviews(reviewsResponse.data.reviews);
   } catch (error) {
     console.error('Error adding review:', error);

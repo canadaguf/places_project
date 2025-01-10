@@ -10,10 +10,11 @@ function Login({ setIsLoggedIn }) {
   const [loading, setLoading] = useState(false); // Loading state
   const navigate = useNavigate();
 
+const backendUrl = "https://places-project-6i0r.onrender.com";
   const handleLogin = async () => {
     setLoading(true); // Start loading
     try {
-      const response = await axios.post('http://localhost:5000/api/login', {
+      const response = await axios.post('${backendUrl}/api/login', {
         username,
         password,
       });

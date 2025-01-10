@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
 
+const backendUrl = "https://places-project-6i0r.onrender.com";
+
 function MapComponent() {
   const [selectedPlace, setSelectedPlace] = useState(null);
   const [map, setMap] = useState(null);
@@ -63,7 +65,7 @@ function MapComponent() {
   }, []);
 
   const handleSavePlace = (place) => {
-    axios.post('http://localhost:5000/api/place-data', place)
+    axios.post('${backendUrl}/api/place-data', place)
       .then(response => {
         console.log('Response from backend:', response.data);
         if (response.data.status === 'success') {
