@@ -16,6 +16,11 @@ bcrypt = Bcrypt(app)
 # Secret key for JWT
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'A1b2C3d4E5f6G7h8I9j0K!l@M#n$O%p^Q&r*S(t)U_V+W-X=Y')
 
+@app.route('/')
+def home():
+    return jsonify({'message': 'Welcome to the backend!'}), 200
+
+
 class User(db.Model):
     __tablename__ = 'users'
 
