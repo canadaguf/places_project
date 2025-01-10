@@ -4,17 +4,16 @@ from flask_bcrypt import Bcrypt
 from flask_cors import CORS
 import jwt
 import datetime
-import os
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/api/*": {"origins": "https://polite-lebkuchen-acb700.netlify.app/"}})
 
-# Set configuration from environment variables
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('SQLALCHEMY_DATABASE_URI')
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
-
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:w8mj10CPxSQDW8if@abysmally-empowered-sunbeam.data-1.use1.tembo.io:5432/postgres'
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
+
+# Secret key for JWT
+app.config['SECRET_KEY'] = 'A1b2C3d4E5f6G7h8I9j0K!l@M#n$O%p^Q&r*S(t)U_V+W-X=Y'
 
 
 class User(db.Model):
