@@ -9,7 +9,7 @@ import os
 app = Flask(__name__)
 # Allow requests from both Netlify and Render (if needed)
 allowed_origins = [
-    "https://polite-lebkuchen-acb700.netlify.app",
+    "https://msc-places.netlify.app/",
     "https://places-project-6i0r.onrender.com",  # Add your Render backend URL if needed
 ]
 CORS(app, resources={r"/api/*": {"origins": allowed_origins}})
