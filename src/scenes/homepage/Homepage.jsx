@@ -151,7 +151,7 @@ const Homepage = () => {
                     <React.Fragment key={list.id}>
                       <ListItem
                         component={Link}
-                        to={`/list/${list.id}`} // We'll create this route later
+                        to={`/lists/${list.id}`}
                         sx={{ textDecoration: 'none', color: 'inherit' }}
                       >
                         <ListItemText primary={list.list_name} secondary={`Created on ${list.created_at}`} />
