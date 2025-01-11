@@ -92,7 +92,7 @@ class RelUserList(db.Model):
 
 
 class RelPlaceList(db.Model):
-    __tablename__ = 'rel_user_list'
+    __tablename__ = 'rel_place_list'
 
     id = db.Column(db.Integer, primary_key=True)
     id_place = db.Column(db.Integer, db.ForeignKey('place.id'), nullable=False)
