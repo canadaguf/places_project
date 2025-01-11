@@ -37,6 +37,7 @@ class PlaceData(db.Model):
     website = db.Column(db.String, nullable=False)
     phone = db.Column(db.String, nullable=False)
 
+
 class Review(db.Model):
     __tablename__ = 'review'
 
@@ -87,6 +88,19 @@ class RelUserList(db.Model):
 
     # Relationships
     user = db.relationship('User', backref='user_lists', lazy=True)
+    list = db.relationship('List', backref='list_users', lazy=True)
+
+
+class RelPlaceList(db.Model):
+    __tablename__ = 'rel_user_list'
+
+    id = db.Column(db.Integer, primary_key=True)
+    id_place = db.Column(db.Integer, db.ForeignKey('place.id'), nullable=False)
+    id_list = db.Column(db.Integer, db.ForeignKey('lists.id'), nullable=False)
+    created_at = db.Column(db.TIMESTAMP, default=db.func.current_timestamp())
+
+    # Relationships
+    place = db.relationship('Place', backref='place_lists', lazy=True)
     list = db.relationship('List', backref='list_users', lazy=True)
 
 
@@ -347,7 +361,7 @@ def create_list():
 def get_list_places(list_id):
     try:
         # Fetch places in the list
-        places = PlaceData.query.join(RelUserList, PlaceData.id == RelUserList.id_place).filter(RelUserList.id_list == list_id).all()
+        places = PlaceData.query.join(RelPlaceList, PlaceData.id == RelPlaceList.id_place).filter(RelPlaceList.id_list == list_id).all()
         places_data = [{
             'id': place.id,
             'name': place.name,
@@ -379,11 +393,11 @@ def add_place_to_list(list_id):
             return jsonify({'message': 'Place ID is required', 'status': 'error'}), 400
 
         # Check if the place is already in the list
-        existing_relation = RelUserList.query.filter_by(id_list=list_id, id_place=place_id).first()
+        existing_relation = RelPlaceList.query.filter_by(id_list=list_id, id_place=place_id).first()
         if existing_relation:
             return jsonify({'message': 'Place is already in the list', 'status': 'error'}), 400
 
-        new_relation = RelUserList(id_list=list_id, id_place=place_id, id_user=user_id)
+        new_relation = RelPlaceList(id_list=list_id, id_place=place_id, id_user=user_id)
         db.session.add(new_relation)
         db.session.commit()
 
