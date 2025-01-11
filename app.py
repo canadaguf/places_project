@@ -409,6 +409,27 @@ def get_list_users(list_id):
         return jsonify({'message': str(e), 'status': 'error'}), 500
 
 
+@app.route('/api/lists/<int:list_id>', methods=['GET'])
+def get_list_details(list_id):
+    try:
+        # Fetch the list by ID
+        list = List.query.filter_by(id=list_id).first()
+        if not list:
+            return jsonify({'message': 'List not found', 'status': 'error'}), 404
+
+        # Return list details
+        list_data = {
+            'id': list.id,
+            'list_name': list.list_name,
+            'created_at': list.created_at.strftime('%d/%m/%Y'),
+        }
+
+        return jsonify({'list': list_data, 'status': 'success'}), 200
+
+    except Exception as e:
+        return jsonify({'message': str(e), 'status': 'error'}), 500
+
+
 if __name__ == '__main__':
     port = int(os.getenv('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
