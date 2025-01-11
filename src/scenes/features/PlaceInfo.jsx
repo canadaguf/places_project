@@ -96,7 +96,6 @@ const PlaceInfo = () => {
         website: formData.website,
         phone: formData.phone,
       });
-      //setPlace(response.data.place); // Update place details
       setEditMode(false); // Exit edit mode
       const placeResponse = await axios.get(`${backendUrl}/api/place/${id}`);
       setPlace(placeResponse.data.place); // Update place details

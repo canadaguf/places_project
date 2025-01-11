@@ -20,64 +20,6 @@ bcrypt = Bcrypt(app)
 # Secret key for JWT
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'A1b2C3d4E5f6G7h8I9j0K!l@M#n$O%p^Q&r*S(t)U_V+W-X=Y')
 
-@app.route('/')
-def home():
-    return jsonify({'message': 'Welcome to the backend!'}), 200
-
-
-class User(db.Model):
-    __tablename__ = 'users'
-
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(255), unique=True, nullable=False)
-    password_hash = db.Column(db.String(255), nullable=False)
-    created_at = db.Column(db.TIMESTAMP, default=db.func.current_timestamp())
-
-    def set_password(self, password):
-        self.password_hash = bcrypt.generate_password_hash(password).decode('utf-8')
-
-    def check_password(self, password):
-        return bcrypt.check_password_hash(self.password_hash, password)
-
-@app.route('/api/login', methods=['POST'])
-def login():
-    data = request.json
-    username = data.get('username')
-    password = data.get('password')
-
-    if not username or not password:
-        return jsonify({'message': 'Username and password are required', 'status': 'error'}), 400
-
-    user = User.query.filter_by(username=username).first()
-    if not user or not user.check_password(password):
-        return jsonify({'message': 'Invalid username or password', 'status': 'error'}), 401
-
-    # Generate JWT token
-    token = jwt.encode({
-        'user_id': user.id,
-        'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=1)  # Token expires in 1 hour
-    }, app.config['SECRET_KEY'])
-
-    return jsonify({'message': 'Login successful', 'token': token, 'status': 'success'}), 200
-
-@app.route('/api/register', methods=['POST'])
-def register():
-    data = request.json
-    username = data.get('username')
-    password = data.get('password')
-
-    if not username or not password:
-        return jsonify({'message': 'Username and password are required', 'status': 'error'}), 400
-
-    if User.query.filter_by(username=username).first():
-        return jsonify({'message': 'Username already exists', 'status': 'error'}), 400
-
-    new_user = User(username=username)
-    new_user.set_password(password)
-    db.session.add(new_user)
-    db.session.commit()
-
-    return jsonify({'message': 'User registered successfully', 'status': 'success'}), 201
 
 class PlaceData(db.Model):
     __tablename__ = 'place'
@@ -105,9 +47,95 @@ class Review(db.Model):
     id_user = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     created_at = db.Column(db.TIMESTAMP, default=db.func.current_timestamp())
 
-    # Relationships
     place = db.relationship('PlaceData', backref='reviews', lazy=True)
     user = db.relationship('User', backref='reviews', lazy=True)
+
+
+class User(db.Model):
+    __tablename__ = 'users'
+
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(255), unique=True, nullable=False)
+    password_hash = db.Column(db.String(255), nullable=False)
+    created_at = db.Column(db.TIMESTAMP, default=db.func.current_timestamp())
+
+    def set_password(self, password):
+        self.password_hash = bcrypt.generate_password_hash(password).decode('utf-8')
+
+    def check_password(self, password):
+        return bcrypt.check_password_hash(self.password_hash, password)
+
+
+class List(db.Model):
+    __tablename__ = 'lists'
+
+    id = db.Column(db.Integer, primary_key=True)
+    list_name = db.Column(db.String(255), nullable=False)
+    id_user = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    created_at = db.Column(db.TIMESTAMP, default=db.func.current_timestamp())
+
+    user = db.relationship('User', backref='lists', lazy=True)
+
+
+class RelUserList(db.Model):
+    __tablename__ = 'rel_user_list'
+
+    id = db.Column(db.Integer, primary_key=True)
+    id_user = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    id_list = db.Column(db.Integer, db.ForeignKey('lists.id'), nullable=False)
+    created_at = db.Column(db.TIMESTAMP, default=db.func.current_timestamp())
+
+    # Relationships
+    user = db.relationship('User', backref='user_lists', lazy=True)
+    list = db.relationship('List', backref='list_users', lazy=True)
+
+
+@app.route('/')
+def home():
+    return jsonify({'message': 'Welcome to the backend!'}), 200
+
+
+@app.route('/api/login', methods=['POST'])
+def login():
+    data = request.json
+    username = data.get('username')
+    password = data.get('password')
+
+    if not username or not password:
+        return jsonify({'message': 'Username and password are required', 'status': 'error'}), 400
+
+    user = User.query.filter_by(username=username).first()
+    if not user or not user.check_password(password):
+        return jsonify({'message': 'Invalid username or password', 'status': 'error'}), 401
+
+    # Generate JWT token
+    token = jwt.encode({
+        'user_id': user.id,
+        'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=1)  # Token expires in 1 hour
+    }, app.config['SECRET_KEY'])
+
+    return jsonify({'message': 'Login successful', 'token': token, 'status': 'success'}), 200
+
+
+@app.route('/api/register', methods=['POST'])
+def register():
+    data = request.json
+    username = data.get('username')
+    password = data.get('password')
+
+    if not username or not password:
+        return jsonify({'message': 'Username and password are required', 'status': 'error'}), 400
+
+    if User.query.filter_by(username=username).first():
+        return jsonify({'message': 'Username already exists', 'status': 'error'}), 400
+
+    new_user = User(username=username)
+    new_user.set_password(password)
+    db.session.add(new_user)
+    db.session.commit()
+
+    return jsonify({'message': 'User registered successfully', 'status': 'success'}), 201
+
 
 @app.route('/api/place-data', methods=['POST'])
 def save_place():
@@ -136,6 +164,7 @@ def save_place():
     db.session.commit()
     return jsonify({'message': 'Успешная запись ;)', 'status': 'success'}), 201
 
+
 @app.route('/api/places', methods=['GET'])
 def get_places():
     places = PlaceData.query.all()
@@ -156,6 +185,7 @@ def get_places():
         })
 
     return jsonify({'places': places_list}), 200
+
 
 @app.route('/api/place/<int:place_id>', methods=['GET'])
 def get_place(place_id):
@@ -189,6 +219,7 @@ def get_place(place_id):
         }
     }), 200
 
+
 @app.route('/api/place/<int:place_id>', methods=['PUT'])
 def update_place(place_id):
     place = PlaceData.query.filter_by(id=place_id).first()
@@ -221,6 +252,7 @@ def update_place(place_id):
         }
     }), 200
 
+
 @app.route('/api/review', methods=['POST'])
 def add_review():
     data = request.json
@@ -243,6 +275,7 @@ def add_review():
 
     return jsonify({'message': 'Review added successfully', 'status': 'success'}), 201
 
+
 @app.route('/api/reviews/<int:place_id>', methods=['GET'])
 def get_reviews(place_id):
     reviews = Review.query.filter_by(id_place=place_id).all()
@@ -259,6 +292,121 @@ def get_reviews(place_id):
         })
 
     return jsonify({'reviews': reviews_list}), 200
+
+
+@app.route('/api/lists', methods=['GET'])
+def get_lists():
+    token = request.headers.get('Authorization')
+    if not token:
+        return jsonify({'message': 'Token is missing', 'status': 'error'}), 401
+
+    try:
+        decoded_token = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
+        user_id = decoded_token['user_id']
+
+        lists = List.query.filter_by(id_user=user_id).all()
+        lists_data = [{
+            'id': list.id,
+            'list_name': list.list_name,
+            'created_at': list.created_at.strftime('%d/%m/%Y'),
+        } for list in lists]
+
+        return jsonify({'lists': lists_data, 'status': 'success'}), 200
+
+    except Exception as e:
+        return jsonify({'message': str(e), 'status': 'error'}), 500
+
+
+@app.route('/api/lists', methods=['POST'])
+def create_list():
+    token = request.headers.get('Authorization')
+    if not token:
+        return jsonify({'message': 'Token is missing', 'status': 'error'}), 401
+
+    try:
+        decoded_token = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
+        user_id = decoded_token['user_id']
+
+        data = request.json
+        list_name = data.get('list_name')
+
+        if not list_name:
+            return jsonify({'message': 'List name is required', 'status': 'error'}), 400
+
+        new_list = List(list_name=list_name, id_user=user_id)
+        db.session.add(new_list)
+        db.session.commit()
+
+        return jsonify({'message': 'List created successfully', 'status': 'success'}), 201
+
+    except Exception as e:
+        return jsonify({'message': str(e), 'status': 'error'}), 500
+
+
+@app.route('/api/lists/<int:list_id>/places', methods=['GET'])
+def get_list_places(list_id):
+    try:
+        # Fetch places in the list
+        places = PlaceData.query.join(RelUserList, PlaceData.id == RelUserList.id_place).filter(RelUserList.id_list == list_id).all()
+        places_data = [{
+            'id': place.id,
+            'name': place.name,
+            'address': place.address,
+            'latitude': place.latitude,
+            'longitude': place.longitude,
+        } for place in places]
+
+        return jsonify({'places': places_data, 'status': 'success'}), 200
+
+    except Exception as e:
+        return jsonify({'message': str(e), 'status': 'error'}), 500
+
+
+@app.route('/api/lists/<int:list_id>/places', methods=['POST'])
+def add_place_to_list(list_id):
+    token = request.headers.get('Authorization')
+    if not token:
+        return jsonify({'message': 'Token is missing', 'status': 'error'}), 401
+
+    try:
+        decoded_token = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
+        user_id = decoded_token['user_id']
+
+        data = request.json
+        place_id = data.get('place_id')
+
+        if not place_id:
+            return jsonify({'message': 'Place ID is required', 'status': 'error'}), 400
+
+        # Check if the place is already in the list
+        existing_relation = RelUserList.query.filter_by(id_list=list_id, id_place=place_id).first()
+        if existing_relation:
+            return jsonify({'message': 'Place is already in the list', 'status': 'error'}), 400
+
+        new_relation = RelUserList(id_list=list_id, id_place=place_id, id_user=user_id)
+        db.session.add(new_relation)
+        db.session.commit()
+
+        return jsonify({'message': 'Place added to list successfully', 'status': 'success'}), 201
+
+    except Exception as e:
+        return jsonify({'message': str(e), 'status': 'error'}), 500
+
+
+@app.route('/api/lists/<int:list_id>/users', methods=['GET'])
+def get_list_users(list_id):
+    try:
+        # Fetch users connected to the list
+        users = User.query.join(RelUserList, User.id == RelUserList.id_user).filter(RelUserList.id_list == list_id).all()
+        users_data = [{
+            'id': user.id,
+            'username': user.username,
+        } for user in users]
+
+        return jsonify({'users': users_data, 'status': 'success'}), 200
+
+    except Exception as e:
+        return jsonify({'message': str(e), 'status': 'error'}), 500
 
 
 if __name__ == '__main__':
