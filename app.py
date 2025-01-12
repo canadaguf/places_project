@@ -21,6 +21,21 @@ bcrypt = Bcrypt(app)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'A1b2C3d4E5f6G7h8I9j0K!l@M#n$O%p^Q&r*S(t)U_V+W-X=Y')
 
 
+class User(db.Model):
+    __tablename__ = 'users'
+
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(255), unique=True, nullable=False)
+    password_hash = db.Column(db.String(255), nullable=False)
+    created_at = db.Column(db.TIMESTAMP, default=db.func.current_timestamp())
+
+    def set_password(self, password):
+        self.password_hash = bcrypt.generate_password_hash(password).decode('utf-8')
+
+    def check_password(self, password):
+        return bcrypt.check_password_hash(self.password_hash, password)
+
+
 class PlaceData(db.Model):
     __tablename__ = 'place'
 
@@ -52,21 +67,6 @@ class Review(db.Model):
     user = db.relationship('User', backref='reviews', lazy=True)
 
 
-class User(db.Model):
-    __tablename__ = 'users'
-
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(255), unique=True, nullable=False)
-    password_hash = db.Column(db.String(255), nullable=False)
-    created_at = db.Column(db.TIMESTAMP, default=db.func.current_timestamp())
-
-    def set_password(self, password):
-        self.password_hash = bcrypt.generate_password_hash(password).decode('utf-8')
-
-    def check_password(self, password):
-        return bcrypt.check_password_hash(self.password_hash, password)
-
-
 class List(db.Model):
     __tablename__ = 'lists'
 
@@ -75,7 +75,7 @@ class List(db.Model):
     id_user = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     created_at = db.Column(db.TIMESTAMP, default=db.func.current_timestamp())
 
-    user = db.relationship('User', backref='lists', lazy=True)
+    user = db.relationship('User', backref='user_lists', lazy=True)
 
 
 class RelUserList(db.Model):
@@ -87,8 +87,8 @@ class RelUserList(db.Model):
     created_at = db.Column(db.TIMESTAMP, default=db.func.current_timestamp())
 
     # Relationships
-    user = db.relationship('User', backref='user_lists', lazy=True)
-    list = db.relationship('List', backref='list_users', lazy=True)
+    user = db.relationship('User', backref='rel_user_lists', lazy=True)
+    list = db.relationship('List', backref='rel_user_lists', lazy=True)
 
 
 class RelPlaceList(db.Model):
@@ -100,8 +100,8 @@ class RelPlaceList(db.Model):
     created_at = db.Column(db.TIMESTAMP, default=db.func.current_timestamp())
 
     # Relationships
-    place = db.relationship('Place', backref='place_lists', lazy=True)
-    list = db.relationship('List', backref='list_users', lazy=True)
+    place = db.relationship('PlaceData', backref='rel_place_lists', lazy=True)
+    list = db.relationship('List', backref='rel_place_lists', lazy=True)
 
 
 @app.route('/')
@@ -397,7 +397,7 @@ def add_place_to_list(list_id):
         if existing_relation:
             return jsonify({'message': 'Place is already in the list', 'status': 'error'}), 400
 
-        new_relation = RelPlaceList(id_list=list_id, id_place=place_id, id_user=user_id)
+        new_relation = RelPlaceList(id_list=list_id, id_place=place_id)
         db.session.add(new_relation)
         db.session.commit()
 
@@ -410,7 +410,6 @@ def add_place_to_list(list_id):
 @app.route('/api/lists/<int:list_id>/users', methods=['GET'])
 def get_list_users(list_id):
     try:
-        # Fetch users connected to the list
         users = User.query.join(RelUserList, User.id == RelUserList.id_user).filter(RelUserList.id_list == list_id).all()
         users_data = [{
             'id': user.id,
@@ -431,11 +430,30 @@ def get_list_details(list_id):
         if not list:
             return jsonify({'message': 'List not found', 'status': 'error'}), 404
 
+        # Fetch places in the list
+        places = PlaceData.query.join(RelPlaceList, PlaceData.id == RelPlaceList.id_place).filter(RelPlaceList.id_list == list_id).all()
+        places_data = [{
+            'id': place.id,
+            'name': place.name,
+            'address': place.address,
+            'latitude': place.latitude,
+            'longitude': place.longitude,
+        } for place in places]
+
+        # Fetch users connected to the list
+        users = User.query.join(RelUserList, User.id == RelUserList.id_user).filter(RelUserList.id_list == list_id).all()
+        users_data = [{
+            'id': user.id,
+            'username': user.username,
+        } for user in users]
+
         # Return list details
         list_data = {
             'id': list.id,
             'list_name': list.list_name,
             'created_at': list.created_at.strftime('%d/%m/%Y'),
+            'places': places_data,
+            'users': users_data,
         }
 
         return jsonify({'list': list_data, 'status': 'success'}), 200

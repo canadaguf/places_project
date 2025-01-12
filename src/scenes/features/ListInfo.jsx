@@ -63,7 +63,8 @@ const ListInfo = () => {
         { headers: { Authorization: token } }
       );
       setNewPlaceId('');
-      // Refetch places
+
+      // Refetch places after adding a new place
       const placesResponse = await axios.get(`${backendUrl}/api/lists/${id}/places`);
       setPlaces(placesResponse.data.places);
     } catch (error) {
