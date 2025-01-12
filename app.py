@@ -369,14 +369,33 @@ def create_list():
 def get_list_places(list_id):
     try:
         # Fetch places in the list
-        places = PlaceData.query.join(RelPlaceList, PlaceData.id == RelPlaceList.id_place).filter(RelPlaceList.id_list == list_id).all()
-        places_data = [{
-            'id': place.id,
-            'name': place.name,
-            'address': place.address,
-            'latitude': place.latitude,
-            'longitude': place.longitude,
-        } for place in places]
+        places = PlaceData.query.join(RelPlaceList, PlaceData.id == RelPlaceList.id_place).filter(
+            RelPlaceList.id_list == list_id).all()
+
+        # Prepare the response data with ratings
+        places_data = []
+        for place in places:
+            # Fetch reviews for the place
+            reviews = Review.query.filter_by(id_place=place.id).all()
+            total_reviews = len(reviews)
+
+            # Calculate average rating
+            if total_reviews > 0:
+                total_score = sum(review.review_score for review in reviews)
+                average_rating = round(total_score / total_reviews, 1)
+            else:
+                average_rating = 0
+
+            # Add place data with ratings to the response
+            places_data.append({
+                'id': place.id,
+                'name': place.name,
+                'address': place.address,
+                'latitude': place.latitude,
+                'longitude': place.longitude,
+                'average_rating': average_rating,
+                'total_reviews': total_reviews,
+            })
 
         return jsonify({'places': places_data, 'status': 'success'}), 200
 
