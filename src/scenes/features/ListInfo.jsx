@@ -13,18 +13,23 @@ import {
   Grid,
   Box,
   TextField,
+  Snackbar,
+  Alert,
 } from '@mui/material';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
 
 const backendUrl = "https://places-project-6i0r.onrender.com";
+
 const ListInfo = () => {
   const { id } = useParams(); // Get the list ID from the URL
   const [list, setList] = useState(null);
   const [places, setPlaces] = useState([]);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [newPlaceId, setNewPlaceId] = useState('');
+  const [newPlaceName, setNewPlaceName] = useState(''); // State for place name input
+  const [snackbarOpen, setSnackbarOpen] = useState(false); // State for Snackbar
+  const [snackbarMessage, setSnackbarMessage] = useState(''); // Snackbar message
   const mapRef = useRef(null);
 
   // Fetch list details, places, and users
@@ -56,19 +61,45 @@ const ListInfo = () => {
   // Handle adding a new place to the list
   const handleAddPlace = async () => {
     try {
+      // Search for the place by name
+      const searchResponse = await axios.get(`${backendUrl}/api/places`, {
+        params: { name: newPlaceName },
+      });
+
+      const foundPlaces = searchResponse.data.places;
+
+      if (foundPlaces.length === 0) {
+        // No place found
+        setSnackbarMessage('Place not found');
+        setSnackbarOpen(true);
+        return;
+      }
+
+      // Use the first matching place (you can add logic to handle multiple matches)
+      const placeId = foundPlaces[0].id;
+
+      // Add the place to the list
       const token = localStorage.getItem('token');
       await axios.post(
         `${backendUrl}/api/lists/${id}/places`,
-        { place_id: newPlaceId },
+        { place_id: placeId },
         { headers: { Authorization: token } }
       );
-      setNewPlaceId('');
+
+      // Clear the input field
+      setNewPlaceName('');
 
       // Refetch places after adding a new place
       const placesResponse = await axios.get(`${backendUrl}/api/lists/${id}/places`);
       setPlaces(placesResponse.data.places);
+
+      // Notify the user
+      setSnackbarMessage('Place added successfully');
+      setSnackbarOpen(true);
     } catch (error) {
       console.error('Error adding place to list:', error);
+      setSnackbarMessage('Failed to add place. Please try again.');
+      setSnackbarOpen(true);
     }
   };
 
@@ -117,6 +148,11 @@ const ListInfo = () => {
     };
   }, [places]);
 
+  // Handle Snackbar close
+  const handleSnackbarClose = () => {
+    setSnackbarOpen(false);
+  };
+
   return (
     <Container maxWidth="lg" sx={{ marginTop: 4 }}>
       <Grid container spacing={4}>
@@ -146,9 +182,9 @@ const ListInfo = () => {
                 </List>
                 <TextField
                   fullWidth
-                  label="New Place ID"
-                  value={newPlaceId}
-                  onChange={(e) => setNewPlaceId(e.target.value)}
+                  label="New Place Name"
+                  value={newPlaceName}
+                  onChange={(e) => setNewPlaceName(e.target.value)}
                   sx={{ marginBottom: 2 }}
                 />
                 <Button variant="contained" onClick={handleAddPlace}>
@@ -192,6 +228,17 @@ const ListInfo = () => {
           </Paper>
         </Grid>
       </Grid>
+
+      {/* Snackbar for notifications */}
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={handleSnackbarClose}
+      >
+        <Alert onClose={handleSnackbarClose} severity="info" sx={{ width: '100%' }}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 };
