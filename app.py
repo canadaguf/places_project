@@ -610,6 +610,32 @@ def delete_user_from_list(list_id, user_id):
         return jsonify({'message': str(e), 'status': 'error'}), 500
 
 
+@app.route('/api/lists/<int:list_id>/admin-status', methods=['GET'])
+def get_admin_status(list_id):
+    token = request.headers.get('Authorization')
+    if not token:
+        return jsonify({'message': 'Token is missing', 'status': 'error'}), 401
+
+    try:
+        decoded_token = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
+        user_id = decoded_token['user_id']
+
+        # Check if the user is an admin for the list
+        admin_status = (
+            db.session.query(RelUserList.is_admin)
+            .filter(RelUserList.id_list == list_id, RelUserList.id_user == user_id)
+            .scalar()
+        )
+
+        if admin_status is None:
+            return jsonify({'message': 'User not associated with the list', 'status': 'error'}), 404
+
+        return jsonify({'is_admin': admin_status, 'status': 'success'}), 200
+
+    except Exception as e:
+        return jsonify({'message': str(e), 'status': 'error'}), 500
+
+
 if __name__ == '__main__':
     port = int(os.getenv('PORT', 5000))
     app.run(host='0.0.0.0', port=port)

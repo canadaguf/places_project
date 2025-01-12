@@ -33,12 +33,17 @@ const ListInfo = () => {
   const [newUsername, setNewUsername] = useState(''); // State for username input
   const [snackbarOpen, setSnackbarOpen] = useState(false); // State for Snackbar
   const [snackbarMessage, setSnackbarMessage] = useState(''); // Snackbar message
+  const [isAdmin, setIsAdmin] = useState(false); // State to track if the current user is an admin
   const mapRef = useRef(null);
 
   // Fetch list details, places, and users
   useEffect(() => {
     const fetchListData = async () => {
       try {
+        const token = localStorage.getItem('token');
+        const decodedToken = jwtDecode(token);
+        const userId = decodedToken.user_id;
+
         // Fetch list details
         const listResponse = await axios.get(`${backendUrl}/api/lists/${id}`);
         setList(listResponse.data.list);
@@ -50,6 +55,12 @@ const ListInfo = () => {
         // Fetch users connected to the list
         const usersResponse = await axios.get(`${backendUrl}/api/lists/${id}/users`);
         setUsers(usersResponse.data.users);
+
+        // Fetch the current user's admin status for the list
+        const adminStatusResponse = await axios.get(`${backendUrl}/api/lists/${id}/admin-status`, {
+          headers: { Authorization: token },
+        });
+        setIsAdmin(adminStatusResponse.data.is_admin);
 
         setLoading(false);
       } catch (error) {
@@ -255,16 +266,18 @@ const ListInfo = () => {
                         sx={{ textDecoration: 'none', color: 'inherit' }}
                       >
                         <ListItemText primary={place.name} secondary={place.address} />
-                        <IconButton
-                          edge="end"
-                          aria-label="delete"
-                          onClick={(e) => {
-                            e.preventDefault(); // Prevent navigation
-                            handleDeletePlace(place.id);
-                          }}
-                        >
-                          <DeleteIcon />
-                        </IconButton>
+                        {isAdmin && (
+                          <IconButton
+                            edge="end"
+                            aria-label="delete"
+                            onClick={(e) => {
+                              e.preventDefault(); // Prevent navigation
+                              handleDeletePlace(place.id);
+                            }}
+                          >
+                            <DeleteIcon />
+                          </IconButton>
+                        )}
                       </ListItem>
                       <Divider />
                     </React.Fragment>
@@ -300,13 +313,15 @@ const ListInfo = () => {
                     <React.Fragment key={user.id}>
                       <ListItem>
                         <ListItemText primary={user.username} />
-                        <IconButton
-                          edge="end"
-                          aria-label="delete"
-                          onClick={() => handleDeleteUser(user.id)}
-                        >
-                          <DeleteIcon />
-                        </IconButton>
+                        {isAdmin && (
+                          <IconButton
+                            edge="end"
+                            aria-label="delete"
+                            onClick={() => handleDeleteUser(user.id)}
+                          >
+                            <DeleteIcon />
+                          </IconButton>
+                        )}
                       </ListItem>
                       <Divider />
                     </React.Fragment>
