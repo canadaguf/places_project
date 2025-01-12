@@ -337,11 +337,20 @@ def get_lists():
         decoded_token = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
         user_id = decoded_token['user_id']
 
-        lists = List.query.filter_by(id_user=user_id).all()
+        # Fetch lists where the current user is associated (via rel_user_list)
+        lists = (
+            db.session.query(List)
+            .join(RelUserList, List.id == RelUserList.id_list)
+            .filter(RelUserList.id_user == user_id)
+            .all()
+        )
+
+        # Prepare the response data
         lists_data = [{
             'id': list.id,
             'list_name': list.list_name,
             'created_at': list.created_at.strftime('%d/%m/%Y'),
+            'is_admin': any(rel.is_admin for rel in list.rel_user_lists if rel.id_user == user_id),  # Check if the user is an admin
         } for list in lists]
 
         return jsonify({'lists': lists_data, 'status': 'success'}), 200
@@ -539,6 +548,62 @@ def add_user_to_list(list_id):
         db.session.commit()
 
         return jsonify({'message': 'User added to list successfully', 'status': 'success'}), 201
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'message': str(e), 'status': 'error'}), 500
+
+
+@app.route('/api/lists/<int:list_id>/places/<int:place_id>', methods=['DELETE'])
+def delete_place_from_list(list_id, place_id):
+    token = request.headers.get('Authorization')
+    if not token:
+        return jsonify({'message': 'Token is missing', 'status': 'error'}), 401
+
+    try:
+        decoded_token = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
+        user_id = decoded_token['user_id']
+
+        # Check if the place exists in the list
+        relation = RelPlaceList.query.filter_by(id_list=list_id, id_place=place_id).first()
+        if not relation:
+            return jsonify({'message': 'Place not found in the list', 'status': 'error'}), 404
+
+        # Delete the place from the list
+        db.session.delete(relation)
+        db.session.commit()
+
+        return jsonify({'message': 'Place deleted from list successfully', 'status': 'success'}), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'message': str(e), 'status': 'error'}), 500
+
+
+@app.route('/api/lists/<int:list_id>/users/<int:user_id>', methods=['DELETE'])
+def delete_user_from_list(list_id, user_id):
+    token = request.headers.get('Authorization')
+    if not token:
+        return jsonify({'message': 'Token is missing', 'status': 'error'}), 401
+
+    try:
+        decoded_token = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
+        current_user_id = decoded_token['user_id']
+
+        # Check if the user exists in the list
+        relation = RelUserList.query.filter_by(id_list=list_id, id_user=user_id).first()
+        if not relation:
+            return jsonify({'message': 'User not found in the list', 'status': 'error'}), 404
+
+        # Prevent users from deleting themselves (optional)
+        if user_id == current_user_id:
+            return jsonify({'message': 'You cannot remove yourself from the list', 'status': 'error'}), 400
+
+        # Delete the user from the list
+        db.session.delete(relation)
+        db.session.commit()
+
+        return jsonify({'message': 'User deleted from list successfully', 'status': 'success'}), 200
 
     except Exception as e:
         db.session.rollback()

@@ -15,7 +15,9 @@ import {
   TextField,
   Snackbar,
   Alert,
+  IconButton,
 } from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete'; // Import the delete icon
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
 
@@ -133,6 +135,54 @@ const ListInfo = () => {
     }
   };
 
+  // Handle deleting a place from the list
+  const handleDeletePlace = async (placeId) => {
+    try {
+      const token = localStorage.getItem('token');
+
+      // Delete the place from the list
+      await axios.delete(`${backendUrl}/api/lists/${id}/places/${placeId}`, {
+        headers: { Authorization: token },
+      });
+
+      // Refetch places after deletion
+      const placesResponse = await axios.get(`${backendUrl}/api/lists/${id}/places`);
+      setPlaces(placesResponse.data.places);
+
+      // Notify the user
+      setSnackbarMessage('Place deleted successfully');
+      setSnackbarOpen(true);
+    } catch (error) {
+      console.error('Error deleting place:', error);
+      setSnackbarMessage('Failed to delete place. Please try again.');
+      setSnackbarOpen(true);
+    }
+  };
+
+  // Handle deleting a user from the list
+  const handleDeleteUser = async (userId) => {
+    try {
+      const token = localStorage.getItem('token');
+
+      // Delete the user from the list
+      await axios.delete(`${backendUrl}/api/lists/${id}/users/${userId}`, {
+        headers: { Authorization: token },
+      });
+
+      // Refetch users after deletion
+      const usersResponse = await axios.get(`${backendUrl}/api/lists/${id}/users`);
+      setUsers(usersResponse.data.users);
+
+      // Notify the user
+      setSnackbarMessage('User deleted successfully');
+      setSnackbarOpen(true);
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      setSnackbarMessage('Failed to delete user. Please try again.');
+      setSnackbarOpen(true);
+    }
+  };
+
   // Initialize Yandex Map with all places
   useEffect(() => {
     let myMap = null;
@@ -205,6 +255,16 @@ const ListInfo = () => {
                         sx={{ textDecoration: 'none', color: 'inherit' }}
                       >
                         <ListItemText primary={place.name} secondary={place.address} />
+                        <IconButton
+                          edge="end"
+                          aria-label="delete"
+                          onClick={(e) => {
+                            e.preventDefault(); // Prevent navigation
+                            handleDeletePlace(place.id);
+                          }}
+                        >
+                          <DeleteIcon />
+                        </IconButton>
                       </ListItem>
                       <Divider />
                     </React.Fragment>
@@ -240,6 +300,13 @@ const ListInfo = () => {
                     <React.Fragment key={user.id}>
                       <ListItem>
                         <ListItemText primary={user.username} />
+                        <IconButton
+                          edge="end"
+                          aria-label="delete"
+                          onClick={() => handleDeleteUser(user.id)}
+                        >
+                          <DeleteIcon />
+                        </IconButton>
                       </ListItem>
                       <Divider />
                     </React.Fragment>
