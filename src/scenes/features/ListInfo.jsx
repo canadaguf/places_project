@@ -93,7 +93,11 @@ const ListInfo = () => {
         const placemarks = places.map((place) => (
           new ymaps.Placemark(
             [place.longitude, place.latitude],
-            { balloonContent: place.name },
+            {
+              balloonContent: `
+                <strong>${place.name}</strong><br>
+                Rating: ${place.average_rating || 'N/A'} (${place.total_reviews || 0} reviews)`
+            },
             { preset: 'islands#redDotIcon' }
           )
         ));
