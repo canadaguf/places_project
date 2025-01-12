@@ -85,7 +85,7 @@ const ListInfo = () => {
 
         // Initialize a new map instance
         myMap = new ymaps.Map(mapRef.current, {
-          center: [places[0].latitude, places[0].longitude],
+          center: [places[0].longitude, places[0].latitude],
           zoom: 12,
         });
 
