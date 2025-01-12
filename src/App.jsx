@@ -9,6 +9,7 @@ import MapComponent from './scenes/map/MapComponent';
 import Register from './scenes/auth/Register';
 import Login from './scenes/auth/Login';
 import PlaceInfo from './scenes/features/PlaceInfo';
+import ListInfo from './scenes/features/ListInfo';
 import { jwtDecode } from 'jwt-decode';
 
 function App() {
@@ -22,7 +23,7 @@ function App() {
 
   const handleLogout = () => {
     localStorage.removeItem('token'); // Remove token from localStorage
-    setIsLoggedIn(false); // Logout logic
+    setIsLoggedIn(false);
   };
 
   // Check for token on page load
@@ -30,7 +31,7 @@ function App() {
     const token = localStorage.getItem('token');
     if (token) {
       try {
-        const decodedToken = jwtDecode(token); // Decode the token
+        const decodedToken = jwtDecode(token);
         if (decodedToken.exp * 1000 > Date.now()) {
           // Token is valid and not expired
           setIsLoggedIn(true);
