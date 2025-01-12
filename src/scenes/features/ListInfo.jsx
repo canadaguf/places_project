@@ -92,7 +92,7 @@ const ListInfo = () => {
         // Add markers for all places
         const placemarks = places.map((place) => (
           new ymaps.Placemark(
-            [place.latitude, place.longitude],
+            [place.longitude, place.latitude],
             { balloonContent: place.name },
             { preset: 'islands#redDotIcon' }
           )
