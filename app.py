@@ -85,6 +85,7 @@ class RelUserList(db.Model):
     id_user = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     id_list = db.Column(db.Integer, db.ForeignKey('lists.id'), nullable=False)
     created_at = db.Column(db.TIMESTAMP, default=db.func.current_timestamp())
+    is_admin = db.Column(db.Boolean, default=False, nullable=False)
 
     # Relationships
     user = db.relationship('User', backref='rel_user_lists', lazy=True)
@@ -347,13 +348,20 @@ def create_list():
         if not list_name:
             return jsonify({'message': 'List name is required', 'status': 'error'}), 400
 
+        # Create the new list
         new_list = List(list_name=list_name, id_user=user_id)
         db.session.add(new_list)
+        db.session.commit()
+
+        # Now add a row to the rel_user_list table
+        new_rel_user_list = RelUserList(id_user=user_id, id_list=new_list.id, is_admin=True)
+        db.session.add(new_rel_user_list)
         db.session.commit()
 
         return jsonify({'message': 'List created successfully', 'status': 'success'}), 201
 
     except Exception as e:
+        db.session.rollback()  # Rollback in case of error
         return jsonify({'message': str(e), 'status': 'error'}), 500
 
 
