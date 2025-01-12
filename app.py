@@ -180,12 +180,30 @@ def save_place():
     return jsonify({'message': 'Успешная запись ;)', 'status': 'success'}), 201
 
 
+from flask import request, jsonify
+
+
 @app.route('/api/places', methods=['GET'])
 def get_places():
-    places = PlaceData.query.all()
-    places_list = []
-    for place in places:
-        places_list.append({
+    # Check if a 'name' query parameter is provided
+    name = request.args.get('name')
+
+    if name:
+        # If 'name' is provided, filter places by name (case-insensitive)
+        places = PlaceData.query.filter(PlaceData.name.ilike(f'%{name}%')).all()
+        places_list = [{
+            'id': place.id,
+            'name': place.name,
+            'address': place.address,
+            'latitude': place.latitude,
+            'longitude': place.longitude,
+        } for place in places]
+
+        return jsonify({'places': places_list, 'status': 'success'}), 200
+    else:
+        # If no 'name' is provided, return all places
+        places = PlaceData.query.all()
+        places_list = [{
             'id': place.id,
             'place_id': place.place_id,
             'name': place.name,
@@ -197,9 +215,9 @@ def get_places():
             'work_hours': place.work_hours,
             'website': place.website,
             'phone': place.phone,
-        })
+        } for place in places]
 
-    return jsonify({'places': places_list}), 200
+        return jsonify({'places': places_list}), 200
 
 
 @app.route('/api/place/<int:place_id>', methods=['GET'])
