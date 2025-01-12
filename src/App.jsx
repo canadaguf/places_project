@@ -73,8 +73,14 @@ function App() {
               path="/login"
               element={<Login setIsLoggedIn={setIsLoggedIn} />}
             />
-            <Route path="/place/:id" element={<PlaceInfo />} />
-            <Route path="/lists/:id" element={<ListInfo />} />
+            <Route
+                path="/place/:id"
+                element={isLoggedIn ? <PlaceInfo /> : <Navigate to="/login" />}
+            />
+            <Route
+                path="/lists/:id"
+                element={isLoggedIn ? <ListInfo /> : <Navigate to="/login" />}
+            />
           </Routes>
         </Router>
       </ThemeProvider>
