@@ -28,6 +28,7 @@ const ListInfo = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [newPlaceName, setNewPlaceName] = useState(''); // State for place name input
+  const [newUsername, setNewUsername] = useState(''); // State for username input
   const [snackbarOpen, setSnackbarOpen] = useState(false); // State for Snackbar
   const [snackbarMessage, setSnackbarMessage] = useState(''); // Snackbar message
   const mapRef = useRef(null);
@@ -99,6 +100,35 @@ const ListInfo = () => {
     } catch (error) {
       console.error('Error adding place to list:', error);
       setSnackbarMessage('Failed to add place. Please try again.');
+      setSnackbarOpen(true);
+    }
+  };
+
+  // Handle adding a new user to the list
+  const handleAddUser = async () => {
+    try {
+      const token = localStorage.getItem('token');
+
+      // Add the user to the list
+      await axios.post(
+        `${backendUrl}/api/lists/${id}/users`,
+        { username: newUsername },
+        { headers: { Authorization: token } }
+      );
+
+      // Clear the input field
+      setNewUsername('');
+
+      // Refetch users after adding a new user
+      const usersResponse = await axios.get(`${backendUrl}/api/lists/${id}/users`);
+      setUsers(usersResponse.data.users);
+
+      // Notify the user
+      setSnackbarMessage('User added successfully');
+      setSnackbarOpen(true);
+    } catch (error) {
+      console.error('Error adding user to list:', error);
+      setSnackbarMessage('Failed to add user. Please try again.');
       setSnackbarOpen(true);
     }
   };
@@ -204,16 +234,28 @@ const ListInfo = () => {
             {loading ? (
               <CircularProgress />
             ) : (
-              <List>
-                {users.map((user) => (
-                  <React.Fragment key={user.id}>
-                    <ListItem>
-                      <ListItemText primary={user.username} />
-                    </ListItem>
-                    <Divider />
-                  </React.Fragment>
-                ))}
-              </List>
+              <>
+                <List>
+                  {users.map((user) => (
+                    <React.Fragment key={user.id}>
+                      <ListItem>
+                        <ListItemText primary={user.username} />
+                      </ListItem>
+                      <Divider />
+                    </React.Fragment>
+                  ))}
+                </List>
+                <TextField
+                  fullWidth
+                  label="New User Username"
+                  value={newUsername}
+                  onChange={(e) => setNewUsername(e.target.value)}
+                  sx={{ marginBottom: 2 }}
+                />
+                <Button variant="contained" onClick={handleAddUser}>
+                  Add User
+                </Button>
+              </>
             )}
           </Paper>
         </Grid>

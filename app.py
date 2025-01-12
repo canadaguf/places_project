@@ -507,6 +507,44 @@ def get_list_details(list_id):
         return jsonify({'message': str(e), 'status': 'error'}), 500
 
 
+@app.route('/api/lists/<int:list_id>/users', methods=['POST'])
+def add_user_to_list(list_id):
+    token = request.headers.get('Authorization')
+    if not token:
+        return jsonify({'message': 'Token is missing', 'status': 'error'}), 401
+
+    try:
+        decoded_token = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
+        user_id = decoded_token['user_id']
+
+        data = request.json
+        username = data.get('username')
+
+        if not username:
+            return jsonify({'message': 'Username is required', 'status': 'error'}), 400
+
+        # Find the user by username
+        user_to_add = User.query.filter_by(username=username).first()
+        if not user_to_add:
+            return jsonify({'message': 'User not found', 'status': 'error'}), 404
+
+        # Check if the user is already in the list
+        existing_relation = RelUserList.query.filter_by(id_list=list_id, id_user=user_to_add.id).first()
+        if existing_relation:
+            return jsonify({'message': 'User is already in the list', 'status': 'error'}), 400
+
+        # Add the user to the list
+        new_relation = RelUserList(id_list=list_id, id_user=user_to_add.id, is_admin=False)
+        db.session.add(new_relation)
+        db.session.commit()
+
+        return jsonify({'message': 'User added to list successfully', 'status': 'success'}), 201
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'message': str(e), 'status': 'error'}), 500
+
+
 if __name__ == '__main__':
     port = int(os.getenv('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
