@@ -6,6 +6,7 @@ import {
   DialogContentText,
   DialogActions,
   Button,
+  Box,
   CircularProgress,
 } from '@mui/material';
 
@@ -16,7 +17,7 @@ const PrivacyPolicyPopup = ({ open, onClose }) => {
   useEffect(() => {
     if (open) {
       // Fetch the privacy policy text when the popup opens
-      fetch('/privacy-policy.txt')
+      fetch('/privacy_policy.txt')
         .then((response) => response.text())
         .then((text) => {
           setPolicyText(text);
@@ -32,7 +33,7 @@ const PrivacyPolicyPopup = ({ open, onClose }) => {
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-      <DialogTitle>Privacy Policy</DialogTitle>
+      <DialogTitle>ПОЛИТИКА ОБРАБОТКИ ПЕРСОНАЛЬНЫХ ДАННЫХ</DialogTitle>
       <DialogContent>
         {loading ? (
           <Box display="flex" justifyContent="center" alignItems="center" minHeight="100px">
@@ -46,7 +47,7 @@ const PrivacyPolicyPopup = ({ open, onClose }) => {
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose} color="primary">
-          Close
+          Закрыть
         </Button>
       </DialogActions>
     </Dialog>

@@ -14,7 +14,7 @@ const Topbar = ({ handleDrawerToggle, isLoggedIn, handleLogout }) => {
           <MenuIcon />
         </IconButton>
         <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-          Карта приключений
+          Интересные места
         </Typography>
         <Button color="inherit" onClick={toggleColorMode}>
           Тема
@@ -30,11 +30,11 @@ const Topbar = ({ handleDrawerToggle, isLoggedIn, handleLogout }) => {
         {/* Show Login/Logout button based on the login state */}
         {isLoggedIn ? (
           <Button color="inherit" onClick={handleLogout}>
-            Logout
+            Выход
           </Button>
         ) : (
           <Button color="inherit" component={Link} to="/login">
-            Login
+            Вход
           </Button>
         )}
       </Toolbar>

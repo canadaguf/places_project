@@ -269,7 +269,7 @@ const PlaceInfo = () => {
                       </Grid>
                       <Grid item xs={12}>
                         <Button type="submit" variant="contained" color="primary">
-                          Save
+                          Сохранить
                         </Button>
                         <Button
                           variant="outlined"
@@ -277,7 +277,7 @@ const PlaceInfo = () => {
                           onClick={() => setEditMode(false)}
                           sx={{ marginLeft: 2 }}
                         >
-                          Cancel
+                          Отменить
                         </Button>
                       </Grid>
                     </Grid>
@@ -285,25 +285,25 @@ const PlaceInfo = () => {
                 ) : (
                   <>
                     <Typography variant="subtitle1" gutterBottom>
-                      Address: {place.address}
+                      Адрес: {place.address}
                     </Typography>
                     <Typography variant="body1" gutterBottom>
-                      Category: {place.category.join(', ')}
+                      Категория: {place.category.join(', ')}
                     </Typography>
                     <Typography variant="body1" gutterBottom>
-                      Description: {place.description}
+                      Описание: {place.description}
                     </Typography>
                     <Typography variant="body1" gutterBottom>
-                      Work Hours: {place.work_hours}
+                      Рабочие часы: {place.work_hours}
                     </Typography>
                     <Typography variant="body1" gutterBottom>
-                      Website: <a href={place.website} target="_blank" rel="noopener noreferrer">{place.website}</a>
+                      Сайт: <a href={place.website} target="_blank" rel="noopener noreferrer">{place.website}</a>
                     </Typography>
                     <Typography variant="body1" gutterBottom>
-                      Phone: {place.phone}
+                      Телефон: {place.phone}
                     </Typography>
                     <Typography variant="body1" gutterBottom>
-                      Rating: {place.average_rating} ({place.total_reviews})
+                      Рейтинг: {place.average_rating} ({place.total_reviews})
                     </Typography>
                     <Button
                       variant="contained"
@@ -311,7 +311,7 @@ const PlaceInfo = () => {
                       onClick={() => setEditMode(true)}
                       sx={{ marginTop: 2 }}
                     >
-                      Edit
+                      Редактировать
                     </Button>
                     <Button
                       variant="contained"
@@ -319,7 +319,7 @@ const PlaceInfo = () => {
                       onClick={() => setReviewFormOpen(true)}
                       sx={{ marginLeft: 2, marginTop: 2 }}
                     >
-                      Add Review
+                      Добавить отзыв
                     </Button>
                   </>
                 )}
@@ -328,7 +328,7 @@ const PlaceInfo = () => {
                 {reviewFormOpen && (
                   <Box sx={{ marginTop: 4 }}>
                     <Typography variant="h6" gutterBottom>
-                      Add Review
+                      Добавить отзыв
                     </Typography>
                     <form onSubmit={handleReviewSubmit}>
                       <Grid container spacing={2}>
@@ -359,7 +359,7 @@ const PlaceInfo = () => {
                         </Grid>
                         <Grid item xs={12}>
                           <Button type="submit" variant="contained" color="primary">
-                            Submit Review
+                            Сохранить отзыв
                           </Button>
                           <Button
                             variant="outlined"
@@ -367,7 +367,7 @@ const PlaceInfo = () => {
                             onClick={() => setReviewFormOpen(false)}
                             sx={{ marginLeft: 2 }}
                           >
-                            Cancel
+                            Отмена
                           </Button>
                         </Grid>
                       </Grid>
@@ -377,7 +377,7 @@ const PlaceInfo = () => {
               </>
             ) : (
               <Typography variant="h6" color="error">
-                Place not found.
+                Место не найдено.
               </Typography>
             )}
           </Paper>
@@ -387,7 +387,7 @@ const PlaceInfo = () => {
         <Grid item xs={12} md={6}>
           <Paper elevation={3} sx={{ padding: 2, borderRadius: 2, height: '100%' }}>
             <Typography variant="h6" gutterBottom>
-              Location
+              Расположение
             </Typography>
             <div ref={mapRef} style={{ width: '100%', height: '300px' }}></div>
           </Paper>
@@ -397,7 +397,7 @@ const PlaceInfo = () => {
         <Grid item xs={12}>
           <Paper elevation={3} sx={{ padding: 3, borderRadius: 2 }}>
             <Typography variant="h6" gutterBottom>
-              Reviews
+              Отзывы
             </Typography>
             {reviews.length > 0 ? (
               <List>
@@ -424,7 +424,7 @@ const PlaceInfo = () => {
               </List>
             ) : (
               <Typography variant="body2" color="textSecondary">
-                No reviews yet.
+                Ещё нет ни одного отзыва.
               </Typography>
             )}
           </Paper>

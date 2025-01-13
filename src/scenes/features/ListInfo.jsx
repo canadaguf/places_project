@@ -84,7 +84,7 @@ const ListInfo = () => {
 
       if (foundPlaces.length === 0) {
         // No place found
-        setSnackbarMessage('Place not found');
+        setSnackbarMessage('Место не найдено!');
         setSnackbarOpen(true);
         return;
       }
@@ -108,11 +108,11 @@ const ListInfo = () => {
       setPlaces(placesResponse.data.places);
 
       // Notify the user
-      setSnackbarMessage('Place added successfully');
+      setSnackbarMessage('Место добавлено успешно!');
       setSnackbarOpen(true);
     } catch (error) {
       console.error('Error adding place to list:', error);
-      setSnackbarMessage('Failed to add place. Please try again.');
+      setSnackbarMessage('Ошибка с добавлением места. Попробуйте снова.');
       setSnackbarOpen(true);
     }
   };
@@ -141,7 +141,7 @@ const ListInfo = () => {
       setSnackbarOpen(true);
     } catch (error) {
       console.error('Error adding user to list:', error);
-      setSnackbarMessage('Failed to add user. Please try again.');
+      setSnackbarMessage('Ошибка добавления пользователя. Попробуйте снова.');
       setSnackbarOpen(true);
     }
   };
@@ -285,13 +285,13 @@ const ListInfo = () => {
                 </List>
                 <TextField
                   fullWidth
-                  label="New Place Name"
+                  label="Название места"
                   value={newPlaceName}
                   onChange={(e) => setNewPlaceName(e.target.value)}
                   sx={{ marginBottom: 2 }}
                 />
                 <Button variant="contained" onClick={handleAddPlace}>
-                  Add Place
+                  Добавить место в список
                 </Button>
               </>
             )}
@@ -302,7 +302,7 @@ const ListInfo = () => {
         <Grid item xs={12} md={6}>
           <Paper elevation={3} sx={{ padding: 3, borderRadius: 2 }}>
             <Typography variant="h5" gutterBottom>
-              Users Connected to the List
+              Пользователи списка
             </Typography>
             {loading ? (
               <CircularProgress />
@@ -329,13 +329,13 @@ const ListInfo = () => {
                 </List>
                 <TextField
                   fullWidth
-                  label="New User Username"
+                  label="Логин пользователя"
                   value={newUsername}
                   onChange={(e) => setNewUsername(e.target.value)}
                   sx={{ marginBottom: 2 }}
                 />
                 <Button variant="contained" onClick={handleAddUser}>
-                  Add User
+                  Добавить пользователя
                 </Button>
               </>
             )}
@@ -346,7 +346,7 @@ const ListInfo = () => {
         <Grid item xs={12}>
           <Paper elevation={3} sx={{ padding: 2, borderRadius: 2 }}>
             <Typography variant="h6" gutterBottom>
-              Map of Places
+              Адреса
             </Typography>
             <div ref={mapRef} style={{ width: '100%', height: '400px' }}></div>
           </Paper>

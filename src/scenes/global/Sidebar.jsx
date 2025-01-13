@@ -6,8 +6,8 @@ const Sidebar = ({ open, handleDrawerToggle }) => {
   const location = useLocation();
 
   const menuItems = [
-    { text: 'Home', link: '/' },
-    { text: 'Поиск', link: '/map' },
+    { text: 'Домашняя страница', link: '/' },
+    { text: 'Поиск на карте', link: '/map' },
   ];
 
   return (
@@ -16,7 +16,7 @@ const Sidebar = ({ open, handleDrawerToggle }) => {
         {menuItems.map((item, index) => (
           <ListItem
             key={index}
-            button // Correct usage of the button prop
+            button
             component={Link}
             to={item.link}
             selected={location.pathname === item.link}

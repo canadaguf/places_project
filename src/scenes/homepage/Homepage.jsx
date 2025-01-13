@@ -95,7 +95,7 @@ const Homepage = () => {
         <Grid item xs={12} md={6} lg={3}>
           <Paper elevation={3} sx={{ padding: 3, textAlign: 'center', borderRadius: 2, height: 400, overflowY: 'auto' }}>
             <Typography variant="h5" gutterBottom>
-              Places
+              Все места
             </Typography>
             {loading ? (
               <CircularProgress />
@@ -116,10 +116,10 @@ const Homepage = () => {
                   ))}
                 </List>
                 <Button onClick={handlePrevPage} disabled={page === 1}>
-                  Previous
+                  Следующая
                 </Button>
                 <Button onClick={handleNextPage} disabled={page * itemsPerPage >= places.length}>
-                  Next
+                  Предыдущая
                 </Button>
               </>
             )}
@@ -130,7 +130,7 @@ const Homepage = () => {
         <Grid item xs={12} md={6} lg={3}>
           <Paper elevation={3} sx={{ padding: 3, textAlign: 'center', borderRadius: 2, height: 400, overflowY: 'auto' }}>
             <Typography variant="h5" gutterBottom>
-              Personal Lists
+              Мои списки
             </Typography>
             <TextField
               fullWidth
@@ -140,7 +140,7 @@ const Homepage = () => {
               sx={{ marginBottom: 2 }}
             />
             <Button variant="contained" onClick={handleCreateList}>
-              Add List
+              Создать список
             </Button>
             {listLoading ? (
               <CircularProgress />
@@ -161,10 +161,10 @@ const Homepage = () => {
                   ))}
                 </List>
                 <Button onClick={handleListPrevPage} disabled={listPage === 1}>
-                  Previous
+                  Предыдущая
                 </Button>
                 <Button onClick={handleListNextPage} disabled={listPage * itemsPerPage >= lists.length}>
-                  Next
+                  Следующая
                 </Button>
               </>
             )}
