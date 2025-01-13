@@ -9,7 +9,7 @@ import {
   FormControlLabel,
   Link,
 } from '@mui/material';
-import PrivacyPolicyPopup from './scenes/auth/PrivacyPolicyPopup';
+import PrivacyPolicyPopup from './PrivacyPolicyPopup';
 
 function Register() {
   const [username, setUsername] = useState('');
