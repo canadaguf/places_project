@@ -1,14 +1,30 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { TextField, Button, Typography, Box } from '@mui/material';
+import {
+  TextField,
+  Button,
+  Typography,
+  Box,
+  Checkbox,
+  FormControlLabel,
+  Link,
+} from '@mui/material';
+import PrivacyPolicyPopup from './scenes/auth/PrivacyPolicyPopup';
 
 function Register() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
-const backendUrl = "https://places-project-6i0r.onrender.com";
+  const [agreeToPolicy, setAgreeToPolicy] = useState(false);
+  const [policyPopupOpen, setPolicyPopupOpen] = useState(false);
+  const backendUrl = "https://places-project-6i0r.onrender.com";
 
   const handleRegister = async () => {
+    if (!agreeToPolicy) {
+      setMessage('You must agree to the privacy policy to register.');
+      return;
+    }
+
     try {
       const response = await axios.post(`${backendUrl}/api/register`, {
         username,
@@ -16,11 +32,10 @@ const backendUrl = "https://places-project-6i0r.onrender.com";
       });
       setMessage(response.data.message); // Display success message
     } catch (error) {
-      // Check if error.response exists
       if (error.response) {
         setMessage(error.response.data.message || 'Registration failed');
       } else {
-        setMessage('Network error or server not responding'); // Generic error message
+        setMessage('Network error or server not responding');
       }
     }
   };
@@ -51,12 +66,41 @@ const backendUrl = "https://places-project-6i0r.onrender.com";
         onChange={(e) => setPassword(e.target.value)}
         margin="normal"
       />
+      <FormControlLabel
+        control={
+          <Checkbox
+            checked={agreeToPolicy}
+            onChange={(e) => setAgreeToPolicy(e.target.checked)}
+            color="primary"
+          />
+        }
+        label={
+          <Typography variant="body2">
+            I agree to the{' '}
+            <Link
+              href="#"
+              onClick={(e) => {
+                e.preventDefault();
+                setPolicyPopupOpen(true);
+              }}
+            >
+              Privacy Policy
+            </Link>
+          </Typography>
+        }
+      />
       <Button variant="contained" color="primary" onClick={handleRegister}>
         Register
       </Button>
       <Typography variant="body1" color="error" marginTop={2}>
         {message}
       </Typography>
+
+      {/* Privacy Policy Popup */}
+      <PrivacyPolicyPopup
+        open={policyPopupOpen}
+        onClose={() => setPolicyPopupOpen(false)}
+      />
     </Box>
   );
 }
