@@ -116,10 +116,10 @@ const Homepage = () => {
                   ))}
                 </List>
                 <Button onClick={handlePrevPage} disabled={page === 1}>
-                  Следующая
+                  Предыдущая
                 </Button>
                 <Button onClick={handleNextPage} disabled={page * itemsPerPage >= places.length}>
-                  Предыдущая
+                  Следующая
                 </Button>
               </>
             )}
