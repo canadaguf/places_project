@@ -13,7 +13,7 @@ const Homepage = () => {
   const [page, setPage] = useState(1);
   const [listPage, setListPage] = useState(1);
   const [newListName, setNewListName] = useState('');
-  const itemsPerPage = 5;
+  const itemsPerPage = 10;
 
   // Fetch places from the backend
   useEffect(() => {
